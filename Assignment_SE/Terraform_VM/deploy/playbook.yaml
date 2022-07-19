@@ -1,0 +1,8 @@
+---
+- hosts: Azure_vm
+  gather_facts: no
+  roles: 
+   - install-docker
+  roles:
+   - upgrade-gpu
+   

@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  become: yes
+  vars:
+    driver: 378.13
+    driver_url: http://us.download.nvidia.com/XFree86/Linux-x86_64/{{driver}}/NVIDIA-Linux-x86_64-{{driver}}-no-compat32.run
+  tasks:
+  - get_url: dest=. url={{driver_url}}
+  - command: systemctl isolate multi-user.target
+  - service: name=nvidia-docker state=stopped
+  - shell: pkill nvidia-docker-plugin || true
+  - shell: rmmod nvidia_uvm nvidia_drm nvidia_modeset nvidia || true
+  - modprobe: name=nvidia state=absent
+    ignore_errors: True
+  - command: rm -rf /tmp/.X11*
+  - command: bash NVIDIA-Linux-x86_64-{{driver}}-no-compat32.run -q -a --ui=none --uninstall
+  - command: bash NVIDIA-Linux-x86_64-{{driver}}-no-compat32.run -q -a --ui=none
+  - shell: nvidia-xconfig < /dev/null
+  - service: name=nvidia-docker state=started
+    ignore_errors: True
+  - command: systemctl isolate graphical.target
+  - command: systemctl set-default graphical.target
