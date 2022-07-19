@@ -15,9 +15,11 @@ RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
 ENV PATH /usr/local/go/bin:$PATH
 WORKDIR /root
 # pass 2 different arguments to the entrypoint which can be excuted based the arguments
-ARG FOO=go
-ENTRYPOINT [.path/entrypoint.sh]
-
-
-ENV GOPATH /root/go
-ENV PATH /root/go/bin:$PATH
+ARG MY_GO
+ARG MY_CPP
+ENV MY_GO=$MY_GO \
+         MY_CPP=$MY_CPP
+ENTRYPOINT echo ${MY_GO} ${MY_CPP}
+ADD ${ARG}.runme /code/${MY_GO} ${MY_CPP}
+# run the executable
+CMD [${"ARG".runme}]
